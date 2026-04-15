@@ -1,0 +1,12 @@
+[Unit]
+Description=People Counter Service
+After=network.target
+
+[Service]
+User=loic
+WorkingDirectory=/home/loic/sensegate-device
+ExecStart=/usr/bin/python3 /home/loic/sensegate-device/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

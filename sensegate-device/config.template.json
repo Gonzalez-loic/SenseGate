@@ -1,0 +1,6 @@
+{
+  "door_id": "CHANGE_ME",
+  "door_name": "CHANGE_ME",
+  "api_server": "http://100.xxx.xxx.xxx:8001",
+  "count_direction": "horizontal"
+}
