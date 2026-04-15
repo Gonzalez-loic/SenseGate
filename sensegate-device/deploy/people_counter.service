@@ -1,0 +1,18 @@
+[Unit]
+Description=SenseGate People Counter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=loic
+WorkingDirectory=/home/loic/sensegate-device
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/loic/sensegate-device/.venv/bin/python /home/loic/sensegate-device/app.py
+Restart=always
+RestartSec=2
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

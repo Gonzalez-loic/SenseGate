@@ -1,0 +1,58 @@
+app:
+  host: 0.0.0.0
+  port: 5000
+  snapshot_path: runtime/snapshot.jpg
+  stream_fps: 8
+  jpeg_quality: 85
+
+logging:
+  level: INFO
+  file: logs/device.log
+
+camera:
+  source: 0              # 0 pour /dev/video0, ou rtsp://..., ou fichier vidéo
+  width: 1280
+  height: 720
+  fps: 20
+  warmup_seconds: 2
+
+site:
+  device_id: porte_01
+  door_name: Porte 01
+  site_name: Site demo
+  timezone: Europe/Paris
+
+counting:
+  mode: horizontal       # horizontal ou vertical
+  line_position: 0.50    # ratio 0..1 au centre par défaut
+  min_confidence: 0.45
+  min_box_area_ratio: 0.006
+  min_stable_hits: 2
+  max_missing_frames: 20
+  min_crossing_delta_ratio: 0.08
+  class_name: person
+  direction_names:
+    in: entree
+    out: sortie
+
+backend:
+  provider: hailo        # hailo, opencv_hog, mock
+  use_hailo_unique_id: true
+
+server:
+  enabled: true
+  base_url: http://100.100.100.100:8001
+  ingest_path: /api/ingest/stats
+  health_path: /api/ingest/heartbeat
+  api_token: CHANGE_ME
+  sync_interval_seconds: 10
+  heartbeat_interval_seconds: 30
+  timeout_seconds: 5
+  verify_ssl: false
+
+security:
+  admin_token: CHANGE_ME_LOCAL
+
+storage:
+  db_path: runtime/device.db
+  keep_events_days: 30
