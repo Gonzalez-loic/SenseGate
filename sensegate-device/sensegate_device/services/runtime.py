@@ -4,7 +4,6 @@ import logging
 import threading
 import time
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 import cv2
@@ -70,9 +69,17 @@ class DeviceRuntime:
         workers = [
             threading.Thread(target=self._vision_loop, daemon=True, name="vision-loop"),
             threading.Thread(target=self._sync_loop, daemon=True, name="sync-loop"),
-            threading.Thread(target=self._heartbeat_loop, daemon=True, name="heartbeat-loop"),
             threading.Thread(target=self._reload_loop, daemon=True, name="reload-loop"),
         ]
+
+        heartbeat_path = (self.config.server.health_path or "").strip()
+        if self.config.server.enabled and heartbeat_path and self.config.server.heartbeat_interval_seconds > 0:
+            workers.append(
+                threading.Thread(target=self._heartbeat_loop, daemon=True, name="heartbeat-loop")
+            )
+        else:
+            logger.info("Heartbeat loop disabled by configuration")
+
         for worker in workers:
             worker.start()
 
@@ -95,6 +102,7 @@ class DeviceRuntime:
 
                 now = utcnow_iso()
                 self.db.save_stats(self.counter.in_count, self.counter.out_count, now)
+
                 annotated = self._annotate_frame(frame, detections)
                 ok, buf = cv2.imencode(
                     ".jpg",
@@ -107,6 +115,7 @@ class DeviceRuntime:
                         self._latest_frame = annotated
                         self._latest_jpeg = jpeg
                     self.snapshot_path.write_bytes(jpeg)
+
                 self.state.last_frame_at = now
             except Exception as exc:
                 logger.exception("Vision loop error")
@@ -116,8 +125,10 @@ class DeviceRuntime:
     def _annotate_frame(self, frame, detections):
         annotated = frame.copy()
         h, w = annotated.shape[:2]
+
         if self.counter.line_px is None:
             self.counter.configure_from_frame(annotated.shape)
+
         line = self.counter.line_px or 0
         if self.config.counting.mode == "horizontal":
             cv2.line(annotated, (0, line), (w, line), (0, 255, 255), 2)
@@ -128,7 +139,15 @@ class DeviceRuntime:
             cv2.rectangle(annotated, (det.x1, det.y1), (det.x2, det.y2), (0, 255, 0), 2)
             cx, cy = det.center
             cv2.circle(annotated, (cx, cy), 4, (0, 0, 255), -1)
-            cv2.putText(annotated, f"{det.label} {det.confidence:.2f}", (det.x1, max(20, det.y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            cv2.putText(
+                annotated,
+                f"{det.label} {det.confidence:.2f}",
+                (det.x1, max(20, det.y1 - 8)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 255, 0),
+                2,
+            )
 
         cv2.putText(annotated, f"IN: {self.counter.in_count}", (20, 35), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 200, 0), 2)
         cv2.putText(annotated, f"OUT: {self.counter.out_count}", (20, 75), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 200, 255), 2)
@@ -139,20 +158,17 @@ class DeviceRuntime:
         interval = max(2, self.config.server.sync_interval_seconds)
         while not self._stop_event.is_set():
             try:
-                pending = self.db.pending_events(limit=100)
-                if pending:
-                    payload = []
-                    ids = []
-                    for row in pending:
-                        ids.append(int(row["id"]))
-                        payload.append({
-                            "event_type": row["event_type"],
-                            "created_at": row["created_at"],
-                            **row["payload"],
-                        })
-                    if self.server_client.post_event_batch(payload):
-                        self.db.mark_synced(ids)
-                        self.state.last_server_sync_at = utcnow_iso()
+                payload = {
+                    "door_id": self.config.site.device_id,
+                    "count_in": int(self.counter.in_count),
+                    "count_out": int(self.counter.out_count),
+                    "occupancy": max(int(self.counter.in_count) - int(self.counter.out_count), 0),
+                    "timestamp": utcnow_iso(),
+                }
+
+                if self.server_client.push_stats(payload):
+                    self.state.last_server_sync_at = utcnow_iso()
+
                 time.sleep(interval)
             except Exception as exc:
                 logger.exception("Sync loop error")

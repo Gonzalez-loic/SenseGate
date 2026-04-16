@@ -10,3 +10,4 @@ sensegate-device/logs/
 sensegate-device/runtime/
 sensegate-device/test.jpg
 sensegate-device/**/__pycache__/
+**/__pycache__/
