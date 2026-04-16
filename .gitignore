@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+*.log
+logs/
+runtime/
+test.jpg
+sensegate-device/config.yaml
+sensegate-device/logs/
+sensegate-device/runtime/
+sensegate-device/test.jpg
+sensegate-device/**/__pycache__/
