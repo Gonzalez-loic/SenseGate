@@ -22,3 +22,10 @@ sensegate-device/**/__pycache__/
 *.env
 !*.example.env
 benchmark-private/
+tracking/*-results.json
+tracking/*-cache.json
+tracking/counter-config.json
+tracking/live-trace.json
+tracking/private-frames/
+tracking/live-*/
+tracking/venv/

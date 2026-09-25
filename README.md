@@ -6,6 +6,8 @@ Cette branche conserve **l'architecture Pi réellement installée au 25 septembr
 - `tools/` : sauvegarde chiffrée, vérification de restauration, tests de contrat et comparaison hors ligne des détecteurs.
 - `docs/ESSAIS_20260925.md` : mesures et limites.
 - `docs/RESTAURATION_PI.md` : emplacement et procédure de récupération.
+- `tracking/` : comparaison isolée du suivi d'identité et capture temporaire des détections réelles.
+- `docs/TRACKING_20260925.md` : résultats de suivi et limites de la conservation d'ID pendant 1,5 seconde.
 
 ## Contraintes
 

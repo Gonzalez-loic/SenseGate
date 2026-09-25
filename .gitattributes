@@ -2,4 +2,7 @@
 pi-baseline-20260925/app/*.py -text
 pi-baseline-20260925/source-sha256.json text eol=lf
 tools/*.py text eol=lf
+tracking/*.py text eol=lf
+tracking/*.txt text eol=lf
+tracking/*.md text eol=lf
 docs/*.md text eol=lf

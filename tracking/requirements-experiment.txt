@@ -1,0 +1,13 @@
+# Isolated CPU replay ONLY. Never install globally on the Pi.
+# Camera/Hailo capture uses system Python, not this experimental environment.
+supervision==0.26.1
+scipy==1.18.1
+opencv-python==5.0.0.93
+matplotlib==3.11.2
+contourpy==1.4.0
+cycler==0.12.1
+defusedxml==0.7.1
+fonttools==4.66.0
+kiwisolver==1.5.1
+pyparsing==3.3.3
+# Inherited system runtime on this Pi: numpy 2.2.4, Pillow 11.1.0.
