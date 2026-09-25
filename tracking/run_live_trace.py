@@ -91,6 +91,11 @@ sys.exit(0)
             raise RuntimeError('capture or original engine recovery unconfirmed')
         assert manifest() == before, 'production sources/config changed'
         assert not capture['errors'], capture['errors']
+        assert capture['frames'], 'empty capture is not a successful comparison'
+        if (STAGE/'shadow-enabled.json').exists():
+            assert capture.get('shadow_summary'), 'requested shadow comparison did not run'
+        if capture.get('shadow_summary'):
+            assert capture['shadow_summary']['baseline_parity'], 'shadow baseline differs from primary'
         result = {'started_at':started,'completed_at':time.time(),'counts_before':counts_before,'counts_after':state,
                   'production_sources_and_config_unchanged':True,'captured_frames':len(capture['frames']),
                   'capture_fps':capture['fps'],'scope':'Pi only; no VPS calls or payload changes',

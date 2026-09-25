@@ -34,3 +34,15 @@ Les variantes `immediate` permettent de tester la publication des boîtes dès l
 Les captures, vidéos, images et traces restent hors Git. Aucun pourcentage de précision ne peut être déduit des scores du détecteur, du nombre d'IDs ou de ces seuls tests.
 
 Références : [ByteTrack dans Supervision 0.26.1](https://github.com/roboflow/supervision/blob/0.26.1/supervision/tracker/byte_tracker/core.py), [ByteTrack original](https://github.com/ifzhang/ByteTrack).
+
+## Point 1 : maintien par scores faibles sur le tracker actuel
+
+`low_score_counter.py` est un candidat distinct, sans dépendance ByteTrack : il garde le traitement original des scores forts et utilise les scores 0,20–0,30 seulement pour maintenir une piste confirmée, sans création d'ID ni comptage faible. Voir `docs/POINT1_FAIBLES_SCORES_20260925.md` pour les limites précises et les résultats.
+
+Tests ciblés, avec la bibliothèque standard seulement :
+
+```sh
+python -m unittest discover -s tracking -p 'test_low_score*.py' -v
+```
+
+`low_score_replay.py` reçoit explicitement `--input`, `--config`, `--source` et `--output`. Il refuse d'écraser un résultat existant. Pour la comparaison temporaire en direct, un fichier `shadow-enabled.json` conforme à l'exemple doit être placé dans le dossier de capture ; le compteur de référence et le candidat tournent en mémoire sur les mêmes observations, sans publication de leurs résultats. Le fichier du compteur de référence doit correspondre exactement au compteur actif du Pi. Les durées et mécanismes de reprise du test restent ceux de `run_live_trace.py`.

@@ -1,0 +1,4 @@
+{
+  "mode": "low-score-only",
+  "purpose": "Explicit opt-in for a bounded 180-second comparison; no candidate production output."
+}

@@ -1,4 +1,4 @@
-"""Bounded Pi-only observation of ORIGINAL engine decisions, never a new tracker.
+"""Bounded Pi-only observation of ORIGINAL decisions, with optional shadow copies.
 
 Run only via run_live_trace.py. The entrypoint has already restored itself on disk.
 This adds two in-memory hooks to the verified source, leaving the original model,
@@ -40,6 +40,9 @@ class Recorder:
         self.last_image = -1e10
         self.last_person = -1e10
         self.dropped_images = 0
+        self.shadow = None
+        self.continuous_images = False
+        self.threshold = None
         self.queue = queue.Queue(maxsize=4)
         self.directory = STAGE/'private-frames'
         self.directory.mkdir(mode=0o700, exist_ok=False)
@@ -51,6 +54,13 @@ class Recorder:
         cfg = namespace['cfg']
         self.width, self.height = int(cfg['CAM_WIDTH']), int(cfg['CAM_HEIGHT'])
         self.threshold = float(cfg['MIN_CONFIDENCE'])
+        if (STAGE/'shadow-enabled.json').exists():
+            assert json.loads((STAGE/'shadow-enabled.json').read_text())['mode']=='low-score-only'
+            from low_score_shadow import ShadowComparison
+            source = STAGE/'counter_baseline.py'
+            assert hashlib.sha256(source.read_bytes()).hexdigest() == hashlib.sha256((APP/'counter_logic.py').read_bytes()).hexdigest()
+            self.shadow = ShadowComparison(source,cfg)
+            self.continuous_images = True
 
     def record(self, mono, results, frame, detections, tracked, counter):
         started = time.perf_counter()
@@ -64,10 +74,12 @@ class Recorder:
                    'live_tracks':[{'id':d['track_id'], 'bbox':d['bbox'], 'score':d['score']} for d in tracked],
                    'live_in':counter.in_count, 'live_out':counter.out_count}
             self.rows.append(row)
+            if self.shadow is not None:
+                row['shadow'] = self.shadow.step(mono,low,tracked,counter)
             if low:
                 self.last_person = mono
             # Bounded, asynchronous visual evidence, no second inference.
-            if mono-self.last_image >= .20 and mono-self.last_person < 2.0:
+            if mono-self.last_image >= .20 and (self.continuous_images or mono-self.last_person < 2.0):
                 try:
                     self.queue.put_nowait((index, frame.copy()))
                     self.last_image = mono
@@ -118,6 +130,8 @@ class Recorder:
                   'primary_threshold':self.threshold, 'frames':rows, 'errors':self.errors,
                   'dropped_images':self.dropped_images,
                   'record_median_ms':statistics.median(self.overheads) if self.overheads else None,
+                  'continuous_images':self.continuous_images,
+                  'shadow_summary':self.shadow.summary() if self.shadow is not None else None,
                   'limitations':['A short capture is not a field accuracy estimate.',
                                  'Timestamps precede CounterLogic.update by a few microseconds.',
                                  'Raw input images are sampled at <=5 FPS; all detections are logged.']}
@@ -140,6 +154,9 @@ def main():
         trace.configure(namespace)
         (STAGE/'capture-started.json').write_text(json.dumps({'started_at':time.time()}))
         namespace['main']()
+    except BaseException as exc:
+        trace.errors.append('engine_or_capture_failed: '+type(exc).__name__)
+        raise
     finally:
         trace.finish()
 

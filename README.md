@@ -8,6 +8,7 @@ Cette branche conserve **l'architecture Pi réellement installée au 25 septembr
 - `docs/RESTAURATION_PI.md` : emplacement et procédure de récupération.
 - `tracking/` : comparaison isolée du suivi d'identité et capture temporaire des détections réelles.
 - `docs/TRACKING_20260925.md` : résultats de suivi et limites de la conservation d'ID pendant 1,5 seconde.
+- `docs/POINT1_FAIBLES_SCORES_20260925.md` : candidat conservateur sur le suivi actuel, tests et comparaison sans effet sur les compteurs officiels.
 
 ## Contraintes
 

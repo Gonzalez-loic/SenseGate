@@ -29,3 +29,4 @@ tracking/live-trace.json
 tracking/private-frames/
 tracking/live-*/
 tracking/venv/
+tracking/shadow-enabled.json
