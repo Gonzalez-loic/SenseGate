@@ -12,3 +12,13 @@ sensegate-device/test.jpg
 sensegate-device/**/__pycache__/
 **/__pycache__/
 **/__pycache__/
+*.sgbak
+*.dpapi
+*.pem
+*.hef
+*.mp4
+*.jpg
+*.npz
+*.env
+!*.example.env
+benchmark-private/

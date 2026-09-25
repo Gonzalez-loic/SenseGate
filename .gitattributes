@@ -1,0 +1,5 @@
+# Preserve byte-for-byte Pi source snapshots on Windows checkouts.
+pi-baseline-20260925/app/*.py -text
+pi-baseline-20260925/source-sha256.json text eol=lf
+tools/*.py text eol=lf
+docs/*.md text eol=lf

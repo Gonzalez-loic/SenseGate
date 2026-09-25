@@ -1,0 +1,10 @@
+{
+  "app/people_counter_hailo.py": "6c665caf43db871297d4be7849bc6cda512f13f6026a4ad93386eb38f7ff2ba7",
+  "app/counter_logic.py": "539c6d21800f49dd8163fed586b7d9145fb765f412b8217065c1252c6e54ada9",
+  "app/config_loader.py": "4cacce35e2ffe88ab5bce39976810c41827d722e0aaf229db7f0f29a54c08af9",
+  "app/sync_client.py": "4468ffabe2020b3df2535262b89fe1063e85be8d5dbf8edef4815eb6088ee91f",
+  "app/app_stub.py": "d2b8b428070adfe5f299873d2e083cbdeeb52066cafe93893c3f8f132cd1ec24",
+  "app/video_debug_agent.py": "9e6ecf7480c8d8374e232a5aea3523e1f0d1e5bbbd5f5823eef99ad1b74c137b",
+  "app/detection_clip_agent.py": "771532b74091a4199156cdb949612e494915ff605b05bc1c7716e46737e495d3",
+  "app/review_sync.py": "e1baf0cf1c6837a2ef5f4c9806e49c2f5d5dd14c4806fab3f638ae24364793a4"
+}
